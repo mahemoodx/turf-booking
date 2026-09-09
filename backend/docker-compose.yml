@@ -1,0 +1,19 @@
+services:
+  postgres:
+    image: postgres:16-alpine
+    container_name: turfbook-postgres
+    environment:
+      POSTGRES_DB: turfbook
+      POSTGRES_USER: turfbook
+      POSTGRES_PASSWORD: turfbook
+    ports:
+      - "5432:5432"
+    volumes:
+      - turfbook-postgres:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U turfbook -d turfbook"]
+      interval: 5s
+      timeout: 5s
+      retries: 10
+volumes:
+  turfbook-postgres:

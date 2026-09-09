@@ -1,0 +1,499 @@
+@import "tailwindcss" source(none);
+@source "../src";
+@import "tw-animate-css";
+
+@custom-variant dark (&:is(.dark *));
+
+/*
+ * Design system definition.
+ *
+ * The @theme inline block maps CSS custom properties to Tailwind utility
+ * classes (e.g. --color-primary -> bg-primary, text-primary).
+ *
+ * The :root and .dark blocks define the actual color values using oklch.
+ * All colors MUST use oklch format.
+ *
+ * To add a new semantic color:
+ * 1. Add the variable to :root (light value) and .dark (dark value)
+ * 2. Register it in @theme inline as --color-<name>: var(--<name>)
+ */
+
+@theme inline {
+  --radius-sm: calc(var(--radius) - 4px);
+  --radius-md: calc(var(--radius) - 2px);
+  --radius-lg: var(--radius);
+  --radius-xl: calc(var(--radius) + 4px);
+  --radius-2xl: calc(var(--radius) + 8px);
+  --radius-3xl: calc(var(--radius) + 12px);
+  --radius-4xl: calc(var(--radius) + 16px);
+  --color-background: var(--background);
+  --color-foreground: var(--foreground);
+  --color-card: var(--card);
+  --color-card-foreground: var(--card-foreground);
+  --color-popover: var(--popover);
+  --color-popover-foreground: var(--popover-foreground);
+  --color-primary: var(--primary);
+  --color-primary-foreground: var(--primary-foreground);
+  --color-secondary: var(--secondary);
+  --color-secondary-foreground: var(--secondary-foreground);
+  --color-muted: var(--muted);
+  --color-muted-foreground: var(--muted-foreground);
+  --color-accent: var(--accent);
+  --color-accent-foreground: var(--accent-foreground);
+  --color-destructive: var(--destructive);
+  --color-destructive-foreground: var(--destructive-foreground);
+  --color-border: var(--border);
+  --color-input: var(--input);
+  --color-ring: var(--ring);
+  --color-ring-offset-background: var(--background);
+  --color-chart-1: var(--chart-1);
+  --color-chart-2: var(--chart-2);
+  --color-chart-3: var(--chart-3);
+  --color-chart-4: var(--chart-4);
+  --color-chart-5: var(--chart-5);
+  --color-sidebar: var(--sidebar);
+  --color-sidebar-foreground: var(--sidebar-foreground);
+  --color-sidebar-primary: var(--sidebar-primary);
+  --color-sidebar-primary-foreground: var(--sidebar-primary-foreground);
+  --color-sidebar-accent: var(--sidebar-accent);
+  --color-sidebar-accent-foreground: var(--sidebar-accent-foreground);
+  --color-sidebar-border: var(--sidebar-border);
+  --color-sidebar-ring: var(--sidebar-ring);
+}
+
+:root {
+  --radius: 0.9rem;
+  --background: oklch(0.99 0.008 150);
+  --foreground: oklch(0.22 0.045 160);
+  --card: oklch(1 0 0);
+  --card-foreground: oklch(0.22 0.045 160);
+  --popover: oklch(1 0 0);
+  --popover-foreground: oklch(0.22 0.045 160);
+  --primary: oklch(0.72 0.21 145);
+  --primary-foreground: oklch(0.19 0.05 160);
+  --primary-deep: oklch(0.27 0.07 160);
+  --primary-deep-foreground: oklch(0.97 0.02 150);
+  --secondary: oklch(0.95 0.03 150);
+  --secondary-foreground: oklch(0.27 0.07 160);
+  --muted: oklch(0.96 0.015 150);
+  --muted-foreground: oklch(0.52 0.03 160);
+  --accent: oklch(0.93 0.06 150);
+  --accent-foreground: oklch(0.27 0.07 160);
+  --destructive: oklch(0.58 0.21 27);
+  --destructive-foreground: oklch(0.98 0.01 150);
+  --warning: oklch(0.78 0.16 75);
+  --border: oklch(0.9 0.02 155);
+  --input: oklch(0.9 0.02 155);
+  --ring: oklch(0.72 0.21 145);
+  --chart-1: oklch(0.72 0.21 145);
+  --chart-2: oklch(0.6 0.118 184.704);
+  --chart-3: oklch(0.398 0.07 227.392);
+  --chart-4: oklch(0.828 0.189 84.429);
+  --chart-5: oklch(0.769 0.188 70.08);
+  --sidebar: oklch(0.98 0.01 150);
+  --sidebar-foreground: oklch(0.22 0.045 160);
+  --sidebar-primary: oklch(0.72 0.21 145);
+  --sidebar-primary-foreground: oklch(0.19 0.05 160);
+  --sidebar-accent: oklch(0.95 0.03 150);
+  --sidebar-accent-foreground: oklch(0.27 0.07 160);
+  --sidebar-border: oklch(0.9 0.02 155);
+  --sidebar-ring: oklch(0.72 0.21 145);
+
+  --gradient-hero: linear-gradient(
+    120deg,
+    oklch(0.19 0.05 162 / 0.95) 0%,
+    oklch(0.24 0.07 158 / 0.82) 45%,
+    oklch(0.3 0.09 150 / 0.6) 100%
+  );
+  --gradient-primary: linear-gradient(
+    100deg,
+    oklch(0.72 0.21 145),
+    oklch(0.82 0.2 135)
+  );
+  --shadow-card: 0 12px 34px -18px oklch(0.27 0.07 160 / 0.45);
+  --shadow-lift: 0 22px 48px -20px oklch(0.27 0.07 160 / 0.5);
+  --shadow-glow: 0 14px 40px -14px oklch(0.72 0.21 145 / 0.55);
+}
+
+@theme inline {
+  --color-primary-deep: var(--primary-deep);
+  --color-primary-deep-foreground: var(--primary-deep-foreground);
+  --color-warning: var(--warning);
+  --font-sans:
+    "Outfit", ui-sans-serif, system-ui, -apple-system, "Segoe UI", sans-serif;
+  --shadow-card: var(--shadow-card);
+  --shadow-lift: var(--shadow-lift);
+  --shadow-glow: var(--shadow-glow);
+}
+
+@layer base {
+  * {
+    border-color: var(--color-border);
+  }
+
+  body {
+    background-color: var(--color-background);
+    color: var(--color-foreground);
+    font-family: var(--font-sans);
+    -webkit-font-smoothing: antialiased;
+  }
+
+  h1,
+  h2,
+  h3 {
+    letter-spacing: -0.02em;
+  }
+}
+
+@utility container-page {
+  margin-inline: auto;
+  width: 100%;
+  max-width: 80rem;
+  padding-inline: 1.25rem;
+}
+
+@utility text-gradient-primary {
+  background: var(--gradient-primary);
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
+}
+
+@utility surface-deep {
+  background:
+    radial-gradient(
+      110% 90% at 15% 0%,
+      oklch(0.34 0.09 152 / 0.9),
+      transparent 60%
+    ),
+    var(--primary-deep);
+  color: var(--primary-deep-foreground);
+}
+
+
+/* ---------- Auth UI polish ---------- */
+
+@utility auth-card {
+  position: relative;
+  transition:
+    transform 0.35s cubic-bezier(0.22, 1, 0.36, 1),
+    box-shadow 0.35s cubic-bezier(0.22, 1, 0.36, 1);
+  will-change: transform;
+
+  &::before {
+    content: "";
+    position: absolute;
+    inset: -1px;
+    border-radius: inherit;
+    padding: 1px;
+    background: linear-gradient(
+      140deg,
+      color-mix(in oklab, var(--primary) 55%, transparent),
+      transparent 45%,
+      color-mix(in oklab, var(--primary) 30%, transparent)
+    );
+    -webkit-mask:
+      linear-gradient(#000 0 0) content-box,
+      linear-gradient(#000 0 0);
+    mask:
+      linear-gradient(#000 0 0) content-box,
+      linear-gradient(#000 0 0);
+    -webkit-mask-composite: xor;
+    mask-composite: exclude;
+    opacity: 0.55;
+    transition: opacity 0.35s ease;
+    pointer-events: none;
+  }
+
+  &:hover {
+    transform: translateY(-3px);
+    box-shadow: var(--shadow-glow), var(--shadow-lift);
+  }
+
+  &:hover::before {
+    opacity: 1;
+  }
+}
+
+@utility auth-field {
+  transition:
+    border-color 0.2s ease,
+    box-shadow 0.25s ease,
+    background-color 0.2s ease;
+
+  &:hover {
+    border-color: color-mix(in oklab, var(--primary) 45%, var(--border));
+  }
+
+  &:focus {
+    border-color: var(--primary);
+    box-shadow: 0 0 0 4px color-mix(in oklab, var(--primary) 18%, transparent);
+    background-color: color-mix(in oklab, var(--primary) 4%, var(--card));
+  }
+}
+
+@utility auth-link {
+  position: relative;
+
+  &::after {
+    content: "";
+    position: absolute;
+    left: 0;
+    bottom: -2px;
+    height: 2px;
+    width: 100%;
+    border-radius: 2px;
+    background: var(--gradient-primary);
+    transform: scaleX(0);
+    transform-origin: right;
+    transition: transform 0.28s cubic-bezier(0.22, 1, 0.36, 1);
+  }
+
+  &:hover::after {
+    transform: scaleX(1);
+    transform-origin: left;
+  }
+}
+
+@utility auth-point {
+  transition:
+    transform 0.3s cubic-bezier(0.22, 1, 0.36, 1),
+    background-color 0.3s ease;
+
+  &:hover {
+    transform: translateX(4px);
+  }
+}
+
+@utility auth-rise {
+  animation: auth-rise 0.55s cubic-bezier(0.22, 1, 0.36, 1) both;
+}
+
+@keyframes auth-rise {
+  from {
+    opacity: 0;
+    transform: translateY(14px);
+  }
+  to {
+    opacity: 1;
+    transform: none;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .auth-rise {
+    animation: none;
+  }
+  .auth-card:hover {
+    transform: none;
+  }
+}
+
+/* ---------- Shared UI polish ---------- */
+
+@utility media-frame {
+  position: relative;
+  overflow: hidden;
+  isolation: isolate;
+
+  & > img {
+    display: block;
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    object-position: center;
+    transition: transform 0.6s cubic-bezier(0.22, 1, 0.36, 1);
+  }
+
+  &::after {
+    content: "";
+    position: absolute;
+    inset: 0;
+    pointer-events: none;
+    background: linear-gradient(
+      to top,
+      oklch(0.19 0.05 162 / 0.62) 0%,
+      oklch(0.19 0.05 162 / 0.22) 34%,
+      transparent 62%
+    );
+    transition: opacity 0.35s ease;
+    opacity: 0.85;
+  }
+}
+
+@utility media-frame-soft {
+  &::after {
+    background: linear-gradient(
+      to top,
+      oklch(0.19 0.05 162 / 0.4) 0%,
+      transparent 55%
+    );
+  }
+}
+
+@utility turf-card {
+  transition:
+    transform 0.35s cubic-bezier(0.22, 1, 0.36, 1),
+    box-shadow 0.35s cubic-bezier(0.22, 1, 0.36, 1),
+    border-color 0.3s ease;
+
+  &:hover {
+    transform: translateY(-6px);
+    box-shadow: var(--shadow-lift);
+    border-color: color-mix(in oklab, var(--primary) 45%, var(--border));
+  }
+
+  &:hover .media-frame > img {
+    transform: scale(1.07);
+  }
+
+  &:hover .media-frame::after {
+    opacity: 1;
+  }
+}
+
+@utility ui-field {
+  transition:
+    border-color 0.2s ease,
+    box-shadow 0.25s ease,
+    background-color 0.2s ease;
+
+  &:hover {
+    border-color: color-mix(in oklab, var(--primary) 40%, var(--border));
+  }
+
+  &:focus,
+  &:focus-visible {
+    outline: none;
+    border-color: var(--primary);
+    box-shadow: 0 0 0 4px color-mix(in oklab, var(--primary) 18%, transparent);
+  }
+}
+
+@utility ui-focus {
+  &:focus-visible {
+    outline: none;
+    box-shadow: 0 0 0 3px color-mix(in oklab, var(--primary) 25%, transparent);
+  }
+}
+
+@utility ui-check {
+  accent-color: var(--primary);
+  border-radius: 0.3rem;
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
+
+  &:hover {
+    transform: scale(1.12);
+  }
+
+  &:focus-visible {
+    outline: none;
+    box-shadow: 0 0 0 3px color-mix(in oklab, var(--primary) 25%, transparent);
+  }
+}
+
+@utility ui-check-row {
+  transition: color 0.2s ease, transform 0.2s ease;
+
+  &:hover {
+    color: var(--primary);
+    transform: translateX(2px);
+  }
+}
+
+@utility nav-pill {
+  position: relative;
+  transition: color 0.2s ease, background-color 0.25s ease;
+
+  &::after {
+    content: "";
+    position: absolute;
+    left: 50%;
+    right: 50%;
+    bottom: 0.35rem;
+    height: 2px;
+    border-radius: 2px;
+    background: var(--gradient-primary);
+    transition: left 0.28s cubic-bezier(0.22, 1, 0.36, 1),
+      right 0.28s cubic-bezier(0.22, 1, 0.36, 1);
+  }
+
+  &:hover::after {
+    left: 1rem;
+    right: 1rem;
+  }
+
+  &:focus-visible {
+    outline: none;
+    box-shadow: 0 0 0 3px color-mix(in oklab, var(--primary) 28%, transparent);
+  }
+}
+
+@utility footer-link {
+  position: relative;
+  transition: opacity 0.2s ease, transform 0.2s ease;
+
+  &:hover {
+    opacity: 1;
+    transform: translateX(3px);
+  }
+
+  &:focus-visible {
+    outline: none;
+    box-shadow: 0 0 0 3px color-mix(in oklab, var(--primary) 35%, transparent);
+    border-radius: 0.4rem;
+  }
+}
+
+@utility page-enter {
+  animation: page-enter 0.4s cubic-bezier(0.22, 1, 0.36, 1) both;
+}
+
+@keyframes page-enter {
+  from {
+    opacity: 0;
+    transform: translateY(12px);
+  }
+  to {
+    opacity: 1;
+    transform: none;
+  }
+}
+
+@utility skeleton {
+  position: relative;
+  overflow: hidden;
+  background: color-mix(in oklab, var(--muted) 88%, var(--border));
+
+  &::after {
+    content: "";
+    position: absolute;
+    inset: 0;
+    transform: translateX(-100%);
+    background: linear-gradient(
+      90deg,
+      transparent,
+      color-mix(in oklab, var(--card) 75%, transparent),
+      transparent
+    );
+    animation: skeleton-sweep 1.4s infinite;
+  }
+}
+
+@keyframes skeleton-sweep {
+  100% {
+    transform: translateX(100%);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .page-enter {
+    animation: none;
+  }
+  .skeleton::after {
+    animation: none;
+  }
+  .turf-card:hover {
+    transform: none;
+  }
+}
