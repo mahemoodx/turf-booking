@@ -1,0 +1,14 @@
+# Local-only profile: an embedded SQL database saved under backend/data.
+# Production continues to use the PostgreSQL settings in application.yml.
+spring:
+  datasource:
+    url: jdbc:h2:file:./data/turfbook-local;MODE=PostgreSQL;DATABASE_TO_LOWER=TRUE;DEFAULT_NULL_ORDERING=HIGH
+    username: sa
+    password:
+    driver-class-name: org.h2.Driver
+  jpa:
+    database-platform: org.hibernate.dialect.H2Dialect
+    hibernate:
+      ddl-auto: update
+  flyway:
+    enabled: false

@@ -6,6 +6,13 @@ import AuthShell, { Field, inputClass } from "@/components/AuthShell";
 import Button from "@/components/Button";
 import { useApp } from "@/store/AppStore";
 import { authApi } from "@/lib/api";
+import GoogleSignInButton from "@/components/GoogleSignInButton";
+
+const GOOGLE_CLIENT_ID = import.meta.env.VITE_GOOGLE_CLIENT_ID?.trim();
+
+function GoogleIcon() {
+  return <svg aria-hidden="true" viewBox="0 0 24 24" className="size-5"><path fill="#4285F4" d="M21.35 12.23c0-.71-.06-1.4-.18-2.05H12v3.88h5.24a4.48 4.48 0 0 1-1.94 2.94v2.52h3.15c1.84-1.69 2.9-4.18 2.9-7.29Z"/><path fill="#34A853" d="M12 21.75c2.63 0 4.84-.87 6.45-2.23L15.3 17c-.87.59-1.98.94-3.3.94-2.53 0-4.67-1.71-5.44-4H3.3v2.6A9.75 9.75 0 0 0 12 21.75Z"/><path fill="#FBBC05" d="M6.56 13.94A5.85 5.85 0 0 1 6.25 12c0-.67.12-1.31.31-1.94v-2.6H3.3A9.75 9.75 0 0 0 2.25 12c0 1.58.38 3.08 1.05 4.54l3.26-2.6Z"/><path fill="#EA4335" d="M12 6.06c1.43 0 2.71.49 3.72 1.45l2.8-2.8C16.83 3.13 14.63 2.25 12 2.25a9.75 9.75 0 0 0-8.7 5.21l3.26 2.6c.77-2.29 2.91-4 5.44-4Z"/></svg>;
+}
 
 export const Route = createFileRoute("/login")({
   head: () => ({
@@ -29,7 +36,7 @@ export const Route = createFileRoute("/login")({
 
 function LoginPage() {
   const navigate = useNavigate();
-  const { login } = useApp();
+  const { login, googleLogin } = useApp();
   const [values, setValues] = useState({ email: "", password: "" });
   const [remember, setRemember] = useState(true);
   const [show, setShow] = useState(false);
@@ -38,6 +45,7 @@ function LoginPage() {
   const [forgotMode, setForgotMode] = useState(false);
   const [resetEmail, setResetEmail] = useState("");
   const [resetSubmitting, setResetSubmitting] = useState(false);
+  const [googleSubmitting, setGoogleSubmitting] = useState(false);
 
   const set = (key) => (e) => {
     setValues((v) => ({ ...v, [key]: e.target.value }));
@@ -90,6 +98,19 @@ function LoginPage() {
       setResetSubmitting(false);
     }
   };
+  const onGoogleCredential = async (credential) => {
+    if (googleSubmitting) return;
+    setGoogleSubmitting(true);
+    try {
+      await googleLogin(credential);
+      toast.success("Welcome to TurfBook!");
+      navigate({ to: "/" });
+    } catch (error) {
+      toast.error(error.message || "Google sign-in could not be completed.");
+    } finally {
+      setGoogleSubmitting(false);
+    }
+  };
 
   return (
     <AuthShell
@@ -108,7 +129,12 @@ function LoginPage() {
         </Field>
         <Button type="submit" size="lg" className="w-full" disabled={resetSubmitting}>{resetSubmitting ? "Sending..." : "Send reset instructions"}</Button>
         <Button type="button" variant="outline" className="w-full" onClick={() => setForgotMode(false)}>Back to login</Button>
-      </form> : <form onSubmit={onSubmit} className="mt-8 space-y-5" noValidate>
+      </form> : <>
+        <div className={`mt-8 ${googleSubmitting ? "pointer-events-none opacity-60" : ""}`}>
+          {GOOGLE_CLIENT_ID ? <GoogleSignInButton clientId={GOOGLE_CLIENT_ID} onCredential={onGoogleCredential} /> : <Button type="button" variant="outline" size="lg" className="w-full" aria-disabled="true" title="Google sign-in will activate when Google setup is complete"><GoogleIcon />Continue with Google</Button>}
+        </div>
+        <div className="my-6 flex items-center gap-3 text-xs text-muted-foreground"><span className="bg-border h-px flex-1" />or continue with email<span className="bg-border h-px flex-1" /></div>
+        <form onSubmit={onSubmit} className="space-y-5" noValidate>
         <Field label="Email Address" icon={Mail} error={errors.email}>
           <input
             type="email"
@@ -161,7 +187,8 @@ function LoginPage() {
         <Button type="submit" size="lg" className="w-full" disabled={submitting}>
           {submitting ? "Logging in..." : "Login"}
         </Button>
-      </form>}
+        </form>
+      </>}
 
       {!forgotMode && <p className="text-muted-foreground mt-7 text-center text-sm">
         Don&apos;t have an account?{" "}
@@ -169,6 +196,7 @@ function LoginPage() {
           Sign Up
         </Link>
       </p>}
+      {!forgotMode && <p className="mt-3 text-center text-xs text-muted-foreground">Administrator? <Link to="/admin/login" className="font-semibold text-foreground hover:text-primary hover:underline">Use the secure admin sign-in</Link></p>}
     </AuthShell>
   );
 }

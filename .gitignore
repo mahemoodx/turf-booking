@@ -19,6 +19,7 @@ dist-ssr
 /backend/.tools/
 /.tools/
 /backend/target/
+/backend/data/
 
 # Wrangler / Cloudflare
 .wrangler/

@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { Link, useRouterState } from "@tanstack/react-router";
-import { CircleUserRound, Menu, X } from "lucide-react";
+import { CircleUserRound, LogOut, Menu, X } from "lucide-react";
 import Button from "./Button";
 import { useApp } from "@/store/AppStore";
 
@@ -16,6 +16,10 @@ export default function Navbar() {
   const [open, setOpen] = useState(false);
   const { user, logout } = useApp();
   const pathname = useRouterState({ select: (s) => s.location.pathname });
+  const handleLogout = async () => {
+    await logout();
+    window.google?.accounts?.id?.disableAutoSelect?.();
+  };
 
   return (
     <header className="border-border bg-background/85 sticky top-0 z-40 border-b backdrop-blur-md">
@@ -53,9 +57,11 @@ export default function Navbar() {
                 My Bookings
               </Button>
               {user.roles.includes("ADMIN") && <Button as={Link} to="/admin" variant="outline" size="sm">Admin</Button>}
-              <Button size="sm" onClick={logout}>
+              <Button size="sm" aria-label="Signed-in account">
                 <CircleUserRound size={16} /> {user.name.split(" ")[0]}
-                <span className="sr-only">Log out</span>
+              </Button>
+              <Button variant="outline" size="sm" onClick={handleLogout}>
+                <LogOut size={16} /> Log out
               </Button>
             </>
           ) : (
@@ -107,7 +113,7 @@ export default function Navbar() {
                   </Button>
                   <Button
                     variant="outline"
-                    onClick={() => { logout(); setOpen(false); }}
+                    onClick={async () => { await handleLogout(); setOpen(false); }}
                   >
                     Log out
                   </Button>

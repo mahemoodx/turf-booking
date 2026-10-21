@@ -19,6 +19,8 @@ import { Route as HowItWorksRouteImport } from './routes/how-it-works'
 import { Route as LoginRouteImport } from './routes/login'
 import { Route as MyBookingsRouteImport } from './routes/my-bookings'
 import { Route as RegisterRouteImport } from './routes/register'
+import { Route as AdminIndexRouteImport } from './routes/admin.index'
+import { Route as AdminLoginRouteImport } from './routes/admin.login'
 import { Route as TurfsIndexRouteImport } from './routes/turfs.index'
 import { Route as TurfsIdRouteImport } from './routes/turfs.$id'
 
@@ -72,6 +74,16 @@ const RegisterRoute = RegisterRouteImport.update({
   path: '/register',
   getParentRoute: () => rootRouteImport,
 } as any)
+const AdminIndexRoute = AdminIndexRouteImport.update({
+  id: '/',
+  path: '/',
+  getParentRoute: () => AdminRoute,
+} as any)
+const AdminLoginRoute = AdminLoginRouteImport.update({
+  id: '/login',
+  path: '/login',
+  getParentRoute: () => AdminRoute,
+} as any)
 const TurfsIndexRoute = TurfsIndexRouteImport.update({
   id: '/turfs/',
   path: '/turfs/',
@@ -86,7 +98,7 @@ const TurfsIdRoute = TurfsIdRouteImport.update({
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
   '/about': typeof AboutRoute
-  '/admin': typeof AdminRoute
+  '/admin': typeof AdminRouteWithChildren
   '/booking': typeof BookingRoute
   '/booking-confirmation': typeof BookingConfirmationRoute
   '/contact': typeof ContactRoute
@@ -94,13 +106,14 @@ export interface FileRoutesByFullPath {
   '/login': typeof LoginRoute
   '/my-bookings': typeof MyBookingsRoute
   '/register': typeof RegisterRoute
+  '/admin/login': typeof AdminLoginRoute
   '/turfs/$id': typeof TurfsIdRoute
+  '/admin/': typeof AdminIndexRoute
   '/turfs/': typeof TurfsIndexRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
   '/about': typeof AboutRoute
-  '/admin': typeof AdminRoute
   '/booking': typeof BookingRoute
   '/booking-confirmation': typeof BookingConfirmationRoute
   '/contact': typeof ContactRoute
@@ -108,14 +121,16 @@ export interface FileRoutesByTo {
   '/login': typeof LoginRoute
   '/my-bookings': typeof MyBookingsRoute
   '/register': typeof RegisterRoute
+  '/admin/login': typeof AdminLoginRoute
   '/turfs/$id': typeof TurfsIdRoute
+  '/admin': typeof AdminIndexRoute
   '/turfs': typeof TurfsIndexRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/': typeof IndexRoute
   '/about': typeof AboutRoute
-  '/admin': typeof AdminRoute
+  '/admin': typeof AdminRouteWithChildren
   '/booking': typeof BookingRoute
   '/booking-confirmation': typeof BookingConfirmationRoute
   '/contact': typeof ContactRoute
@@ -123,7 +138,9 @@ export interface FileRoutesById {
   '/login': typeof LoginRoute
   '/my-bookings': typeof MyBookingsRoute
   '/register': typeof RegisterRoute
+  '/admin/login': typeof AdminLoginRoute
   '/turfs/$id': typeof TurfsIdRoute
+  '/admin/': typeof AdminIndexRoute
   '/turfs/': typeof TurfsIndexRoute
 }
 export interface FileRouteTypes {
@@ -139,13 +156,14 @@ export interface FileRouteTypes {
     | '/login'
     | '/my-bookings'
     | '/register'
+    | '/admin/login'
     | '/turfs/$id'
+    | '/admin/'
     | '/turfs/'
   fileRoutesByTo: FileRoutesByTo
   to:
     | '/'
     | '/about'
-    | '/admin'
     | '/booking'
     | '/booking-confirmation'
     | '/contact'
@@ -153,7 +171,9 @@ export interface FileRouteTypes {
     | '/login'
     | '/my-bookings'
     | '/register'
+    | '/admin/login'
     | '/turfs/$id'
+    | '/admin'
     | '/turfs'
   id:
     | '__root__'
@@ -167,14 +187,16 @@ export interface FileRouteTypes {
     | '/login'
     | '/my-bookings'
     | '/register'
+    | '/admin/login'
     | '/turfs/$id'
+    | '/admin/'
     | '/turfs/'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
   AboutRoute: typeof AboutRoute
-  AdminRoute: typeof AdminRoute
+  AdminRoute: typeof AdminRouteWithChildren
   BookingRoute: typeof BookingRoute
   BookingConfirmationRoute: typeof BookingConfirmationRoute
   ContactRoute: typeof ContactRoute
@@ -258,6 +280,20 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof RegisterRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/admin/': {
+      id: '/admin/'
+      path: '/'
+      fullPath: '/admin/'
+      preLoaderRoute: typeof AdminIndexRouteImport
+      parentRoute: typeof AdminRoute
+    }
+    '/admin/login': {
+      id: '/admin/login'
+      path: '/login'
+      fullPath: '/admin/login'
+      preLoaderRoute: typeof AdminLoginRouteImport
+      parentRoute: typeof AdminRoute
+    }
     '/turfs/': {
       id: '/turfs/'
       path: '/turfs'
@@ -275,10 +311,22 @@ declare module '@tanstack/react-router' {
   }
 }
 
+interface AdminRouteChildren {
+  AdminLoginRoute: typeof AdminLoginRoute
+  AdminIndexRoute: typeof AdminIndexRoute
+}
+
+const AdminRouteChildren: AdminRouteChildren = {
+  AdminLoginRoute: AdminLoginRoute,
+  AdminIndexRoute: AdminIndexRoute,
+}
+
+const AdminRouteWithChildren = AdminRoute._addFileChildren(AdminRouteChildren)
+
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
   AboutRoute: AboutRoute,
-  AdminRoute: AdminRoute,
+  AdminRoute: AdminRouteWithChildren,
   BookingRoute: BookingRoute,
   BookingConfirmationRoute: BookingConfirmationRoute,
   ContactRoute: ContactRoute,

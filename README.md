@@ -33,7 +33,15 @@ Open the local address shown in the terminal (your current local frontend is `ht
 
 ## Run the complete app
 
-Open a second PowerShell window and start the database and backend:
+Open a second PowerShell window and start the backend. The easiest option does not require Docker or PostgreSQL:
+
+```powershell
+.\backend\start-local.ps1
+```
+
+Keep this window open while using the app. It runs a persistent local SQL database and API on port `9090`.
+
+Alternatively, use PostgreSQL with Docker:
 
 ```powershell
 cd backend
@@ -44,6 +52,16 @@ mvn spring-boot:run
 Then keep the frontend running with `npm run dev`. The frontend `.env` points to the real API at `http://localhost:9090/api`; this avoids a conflict with the frontend on port `8080`. The API documentation is at `http://localhost:9090/swagger-ui.html`.
 
 To stop the database later, run `docker compose down` from the `backend` folder. This retains the database volume; use `docker compose down -v` only when you intentionally want a fresh database.
+
+## Keep the backend running automatically
+
+Run this once from the project root:
+
+```powershell
+.\backend\enable-auto-start.ps1
+```
+
+TurfBook then starts quietly after every Windows sign-in and uses the same persistent local SQL data. To check it, open `http://localhost:9090/swagger-ui.html`.
 
 ## Included features
 
@@ -61,6 +79,8 @@ After the backend has started, use:
 - Email: `admin@gmail.com`
 - Password: `Mahemood`
 
-The customer booking is stored in PostgreSQL immediately and appears in the Admin Dashboard. Read [GitHub publishing steps](GITHUB_SETUP.md) before pushing this extracted ZIP project to GitHub.
+Use `http://localhost:8080/admin/login` for this private account. It is the only active administrator account. Customers use the regular `/login` page and can register their own accounts. Customer bookings are stored in SQL immediately and appear in the Admin Dashboard. Read [GitHub publishing steps](GITHUB_SETUP.md) before pushing this extracted ZIP project to GitHub.
+
+Read [Google sign-in setup](GOOGLE_SIGN_IN_SETUP.md) once to activate the customer Google login.
 
 See [the backend guide](backend/README.md) for API examples, seeded accounts, configuration and deployment notes.

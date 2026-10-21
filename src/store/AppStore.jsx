@@ -23,8 +23,16 @@ export function AppProvider({ children }) {
       user,
       authLoading,
       login: async (credentials) => { const result = await authApi.login(credentials); setAuthenticatedUser(result.user); return result.user; },
+      googleLogin: async (credential) => { const result = await authApi.google(credential); setAuthenticatedUser(result.user); return result.user; },
       register: async (details) => { const result = await authApi.register(details); setAuthenticatedUser(result.user); return result.user; },
-      logout: async () => { await authApi.logout(); setUser({ name: "", email: "", phone: "", roles: [], loggedIn: false }); setBookings([]); },
+      logout: async () => {
+        try {
+          await authApi.logout();
+        } finally {
+          setUser({ name: "", email: "", phone: "", roles: [], loggedIn: false });
+          setBookings([]);
+        }
+      },
       bookings,
       draft,
       setDraft,

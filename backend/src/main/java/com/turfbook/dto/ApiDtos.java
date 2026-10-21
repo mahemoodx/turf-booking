@@ -17,6 +17,7 @@ public final class ApiDtos {
                                 @NotBlank @Pattern(regexp = "^[6-9][0-9]{9}$", message = "must be a valid 10-digit Indian mobile number") String phone,
                                 @NotBlank @Size(min = 8, max = 72) String password) {}
   public record LoginRequest(@NotBlank @Email String email, @NotBlank @Size(min = 8, max = 72) String password) {}
+  public record GoogleLoginRequest(@NotBlank @Size(max = 4096) String credential) {}
   public record RefreshRequest(@NotBlank String refreshToken) {}
   public record ForgotPasswordRequest(@NotBlank @Email String email) {}
   public record ResetPasswordRequest(@NotBlank String token, @NotBlank @Size(min = 8, max = 72) String password) {}

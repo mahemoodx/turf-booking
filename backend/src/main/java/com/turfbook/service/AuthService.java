@@ -6,7 +6,12 @@ import com.turfbook.enums.RoleName;
 import com.turfbook.exception.ApiException;
 import com.turfbook.repository.*;
 import com.turfbook.security.*;
+import com.google.api.client.googleapis.auth.oauth2.GoogleIdToken;
+import com.google.api.client.googleapis.auth.oauth2.GoogleIdTokenVerifier;
+import com.google.api.client.http.javanet.NetHttpTransport;
+import com.google.api.client.json.gson.GsonFactory;
 import io.jsonwebtoken.JwtException;
+import java.io.IOException;
 import java.nio.charset.StandardCharsets;
 import java.security.MessageDigest;
 import java.time.*;
@@ -18,6 +23,7 @@ import org.springframework.security.authentication.*;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.AuthenticationException;
 import org.springframework.security.crypto.password.PasswordEncoder;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -34,6 +40,7 @@ public class AuthService {
   private final JwtService jwt;
   private final ResponseMapper mapper;
   private final CurrentUserService currentUser;
+  @Value("${app.google.client-id:}") private String googleClientId;
 
   @Transactional
   public TokenResponse register(RegisterRequest request) {
@@ -53,6 +60,30 @@ public class AuthService {
       Authentication authentication = authenticationManager.authenticate(new UsernamePasswordAuthenticationToken(request.email().trim().toLowerCase(Locale.ROOT), request.password()));
       return issueTokens(users.findByEmailIgnoreCase(authentication.getName()).orElseThrow());
     } catch (AuthenticationException ex) { throw new ApiException(org.springframework.http.HttpStatus.UNAUTHORIZED, "Invalid email or password"); }
+  }
+  @Transactional
+  public TokenResponse loginWithGoogle(GoogleLoginRequest request) {
+    if (googleClientId == null || googleClientId.isBlank()) throw new ApiException(org.springframework.http.HttpStatus.SERVICE_UNAVAILABLE, "Google sign-in has not been configured yet");
+    try {
+      GoogleIdToken token = new GoogleIdTokenVerifier.Builder(new NetHttpTransport(), GsonFactory.getDefaultInstance())
+          .setAudience(List.of(googleClientId)).build().verify(request.credential());
+      if (token == null) throw new ApiException(org.springframework.http.HttpStatus.UNAUTHORIZED, "Google could not verify this account");
+      GoogleIdToken.Payload profile = token.getPayload();
+      String email = Optional.ofNullable(profile.getEmail()).map(value -> value.trim().toLowerCase(Locale.ROOT))
+          .filter(value -> !value.isBlank()).orElseThrow(() -> ApiException.badRequest("Google did not provide an email address"));
+      if ("admin@gmail.com".equals(email)) throw ApiException.forbidden("Use the private administrator sign-in for this account");
+      if (!Boolean.TRUE.equals(profile.getEmailVerified())) throw ApiException.forbidden("Your Google email address must be verified before it can be used here");
+      UserAccount user = users.findByEmailIgnoreCase(email).orElseGet(() -> createGoogleUser(email, profile));
+      if (!user.isActive()) throw new ApiException(org.springframework.http.HttpStatus.UNAUTHORIZED, "This account is inactive");
+      if (user.getRoles().stream().anyMatch(role -> role.getName() == RoleName.ADMIN)) throw ApiException.forbidden("Use the private administrator sign-in for this account");
+      String name = Optional.ofNullable((String) profile.get("name")).filter(value -> !value.isBlank()).orElse(user.getFullName());
+      user.setFullName(name.length() > 80 ? name.substring(0, 80) : name);
+      user.setAvatarUrl((String) profile.get("picture"));
+      user.setEmailVerified(true);
+      return issueTokens(user);
+    } catch (IOException | java.security.GeneralSecurityException ex) {
+      throw new ApiException(org.springframework.http.HttpStatus.UNAUTHORIZED, "Google could not verify this account");
+    }
   }
   @Transactional
   public TokenResponse refresh(RefreshRequest request) {
@@ -102,6 +133,15 @@ public class AuthService {
     String refreshId = UUID.randomUUID().toString();
     RefreshToken stored = new RefreshToken(); stored.setUser(user); stored.setTokenId(refreshId); stored.setExpiresAt(jwt.refreshExpiry()); refreshTokens.save(stored);
     return new TokenResponse(jwt.issueAccessToken(principal), jwt.issueRefreshToken(principal, refreshId), mapper.user(user));
+  }
+  private UserAccount createGoogleUser(String email, GoogleIdToken.Payload profile) {
+    Role userRole = roles.findByName(RoleName.USER).orElseThrow(() -> new IllegalStateException("USER role is not seeded"));
+    String name = Optional.ofNullable((String) profile.get("name")).filter(value -> !value.isBlank()).orElse("TurfBook Player");
+    UserAccount user = new UserAccount();
+    user.setEmail(email); user.setFullName(name.length() > 80 ? name.substring(0, 80) : name); user.setEmailVerified(true);
+    user.setAvatarUrl((String) profile.get("picture")); user.setPasswordHash(passwords.encode(UUID.randomUUID().toString()));
+    user.setRoles(new HashSet<>(Set.of(userRole)));
+    return users.save(user);
   }
   private void createEmailVerification(UserAccount user) {
     String rawToken = UUID.randomUUID().toString();

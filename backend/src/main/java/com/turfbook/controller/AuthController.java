@@ -13,6 +13,7 @@ public class AuthController {
   private final AuthService auth;
   @PostMapping("/register") public ApiResponse<TokenResponse> register(@Valid @RequestBody RegisterRequest request) { return ApiResponse.ok("Account created", auth.register(request)); }
   @PostMapping("/login") public ApiResponse<TokenResponse> login(@Valid @RequestBody LoginRequest request) { return ApiResponse.ok("Login successful", auth.login(request)); }
+  @PostMapping("/google") public ApiResponse<TokenResponse> google(@Valid @RequestBody GoogleLoginRequest request) { return ApiResponse.ok("Google sign-in successful", auth.loginWithGoogle(request)); }
   @PostMapping("/refresh") public ApiResponse<TokenResponse> refresh(@Valid @RequestBody RefreshRequest request) { return ApiResponse.ok("Token refreshed", auth.refresh(request)); }
   @PostMapping("/forgot-password") public ApiResponse<Void> forgotPassword(@Valid @RequestBody ForgotPasswordRequest request) { auth.forgotPassword(request); return ApiResponse.ok("If an account exists, a reset link has been sent", null); }
   @PostMapping("/reset-password") public ApiResponse<Void> resetPassword(@Valid @RequestBody ResetPasswordRequest request) { auth.resetPassword(request); return ApiResponse.ok("Password reset successful", null); }

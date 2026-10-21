@@ -1,9 +1,32 @@
+import badmintonCourt from "@/assets/turf-badminton-1.jpg";
+import basketballCourt from "@/assets/turf-basketball-1.jpg";
+import cricketGround from "@/assets/turf-cricket-1.jpg";
+import cricketNets from "@/assets/turf-cricket-2.jpg";
+import footballPitch from "@/assets/turf-football-1.jpg";
+import footballArena from "@/assets/turf-football-2.jpg";
+import rooftopCourt from "@/assets/turf-rooftop-1.jpg";
+import tennisCourt from "@/assets/turf-tennis-1.jpg";
+
 const API_BASE_URL = (import.meta.env.VITE_API_URL || "http://localhost:9090/api").replace(
   /\/$/,
   "",
 );
 const ACCESS_KEY = "turfbook.access-token";
 const REFRESH_KEY = "turfbook.refresh-token";
+const LEGACY_TURF_IMAGES = new Set([
+  "https://images.unsplash.com/photo-1575361204480-aadea25e6e68?auto=format&fit=crop&w=1400&q=85",
+  "https://images.unsplash.com/photo-1551958219-acbc608c6377?auto=format&fit=crop&w=1400&q=85",
+]);
+const SPORT_IMAGES = {
+  FOOTBALL: [footballPitch, footballArena],
+  CRICKET: [cricketNets, cricketGround],
+  BADMINTON: [badmintonCourt],
+  TENNIS: [tennisCourt],
+  BASKETBALL: [basketballCourt],
+  VOLLEYBALL: [badmintonCourt],
+  PICKLEBALL: [tennisCourt],
+  OTHER: [rooftopCourt],
+};
 
 export class ApiError extends Error {
   constructor(message, status = 0, errors = []) {
@@ -89,6 +112,14 @@ const queryString = (params) => {
   return text ? `?${text}` : "";
 };
 
+const sportImagesFor = (turf) => {
+  const supplied = turf.imageUrls || [];
+  if (supplied.length && !supplied.every((image) => LEGACY_TURF_IMAGES.has(image))) return supplied;
+  const choices = SPORT_IMAGES[turf.sports?.[0]?.toUpperCase()] || SPORT_IMAGES.OTHER;
+  const index = [...String(turf.id || turf.name || "turf")].reduce((total, character) => total + character.charCodeAt(0), 0) % choices.length;
+  return choices.map((_, offset) => choices[(index + offset) % choices.length]);
+};
+
 const normaliseTurf = (turf) => ({
   id: String(turf.id),
   name: turf.name,
@@ -100,7 +131,7 @@ const normaliseTurf = (turf) => ({
   price: Number(turf.pricePerHour),
   rating: Number(turf.rating),
   reviews: turf.reviewCount,
-  images: turf.imageUrls?.length ? turf.imageUrls : ["/favicon.ico"],
+  images: sportImagesFor(turf),
   facilities: turf.facilities || [],
   availableToday: Boolean(turf.availableToday),
   description: turf.description || "",
@@ -142,6 +173,15 @@ export const authApi = {
     const data = await request(
       "/auth/register",
       { method: "POST", body: JSON.stringify(details) },
+      false,
+    );
+    session.save(data);
+    return data;
+  },
+  async google(credential) {
+    const data = await request(
+      "/auth/google",
+      { method: "POST", body: JSON.stringify({ credential }) },
       false,
     );
     session.save(data);

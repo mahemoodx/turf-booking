@@ -2,7 +2,19 @@
 
 Spring Boot 3 / Java 21 / PostgreSQL backend for the TurfBook React frontend.
 
-## Start locally
+## Start locally without Docker (recommended for this PC)
+
+The project includes a persistent embedded SQL database for easy testing. From the project root, run:
+
+```powershell
+.\backend\start-local.ps1
+```
+
+Keep that PowerShell window open. The API will be at `http://localhost:9090/api`; customer bookings persist under `backend/data` and appear in `/admin` when you refresh the dashboard.
+
+To start this backend automatically at each Windows sign-in, run `./enable-auto-start.ps1` from this folder once.
+
+## Start with PostgreSQL / Docker
 
 1. Install Java 21+ and Maven 3.9+.
 2. Start PostgreSQL from this folder:
@@ -27,6 +39,7 @@ The API is available at `http://localhost:9090/api`, and Swagger UI at `http://l
 | `DB_USERNAME` / `DB_PASSWORD` | `turfbook` / `turfbook` | Database credentials |
 | `JWT_SECRET` | development value | Base64-encoded 256-bit signing secret |
 | `CORS_ALLOWED_ORIGINS` | `http://localhost:3000,http://localhost:5173,http://localhost:8080` | Comma-separated frontend origins |
+| `GOOGLE_CLIENT_ID` | blank | OAuth Web Client ID used to securely verify Google customer sign-ins |
 
 Set a unique `JWT_SECRET` and a strong database password before deploying. The checked-in JWT secret exists only to make first local startup easy.
 
@@ -36,11 +49,10 @@ Flyway loads 7 cities, 20 turfs, facilities, and the core roles. On the first ap
 
 | Role | Email | Password |
 | --- | --- | --- |
-| Admin | `admin@turfbook.com` | `Admin@123` |
 | Admin | `admin@gmail.com` | `Mahemood` |
 | User | `user@turfbook.com` | `User@123` |
 
-Change both passwords immediately outside local development.
+The administrator account is the only active admin account and signs in at `/admin/login`. Change its password immediately outside local development.
 
 ## API quick checks
 
